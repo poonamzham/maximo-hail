@@ -4,7 +4,7 @@ import io
 import shutil
 import ssl
 import tempfile
-import urllib.request
+# import urllib.request
 from pathlib import Path
 
 import cv2
@@ -13,6 +13,7 @@ import numpy as np
 import requests
 import streamlit as st
 from PIL import Image
+import json
 
 
 URL = os.environ.get('INGRESS_HOST')
@@ -57,18 +58,16 @@ def response_from_server(url, image_file, verbose=True):
     Returns:
         requests.models.Response: Response from the server.
     """
-    #files = {'img': ('test.jpeg', image_file, 'image/jpeg')}
-    # r = s.post(MAXIMO_VISUAL_INSPECTION_API_URL,
-    #                files={‘files’: (filename, f)},
-    #                verify=False)
-
-    files = {'file': ('test.jpg', image_file)}
-    response = requests.post(url, files=files, verify=False)
+    with open('test.jpg', 'rb') as f:
+            # WARNING! verify=False is here to allow an untrusted cert!
+            response = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
+                    files={'files': ('test.jpg', f)},
+                    verify=False)
     status_code = response.status_code
     if verbose:
         msg = "Everything went well!" if status_code == 200 else "There was an error when handling the request."
         print(msg)
-    return response
+    return json.loads(response.text)
 
 def get_image_from_response(response):
     """Display image within server's response.
@@ -107,38 +106,17 @@ def run_app(img):
     with open("test.jpg", "rb") as pred_file:
         prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
 
-    # prediction = response_from_server(full_url, image_file)
-
-    print(prediction.status_code)
-    print(prediction)
-
+    st.write(prediction)
 
     # result_img = get_image_from_response(prediction)
     result_img = image_file
         
     left_column.image(image_file, caption = "Selected Input")
 
-    # handle, session = load_model()
-
-
-    # scatter = handle.predict_in_memory(img, visualize_scatter=True, visualize_skeleton=False)
-    # skeleton = handle.predict_in_memory(img, visualize_scatter=True, visualize_skeleton=True)
-
-    # scatter_img = Image.fromarray(scatter)
-    # skeleton_img = Image.fromarray(skeleton)
 
     right_column.image(result_img,  caption = "Predicted Keypoints")
     # st.image(skeleton_img, caption = 'FINAL: Predicted Pose')
 
-# def demo():
-    # left_column, middle_column, right_column = st.beta_columns(3)
-
-    # left_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR,'skier.png'), caption = "Demo Image")
-
-    # middle_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'skier_output.png'), caption = "Predicted Heatmap")
-
-    # right_column.subheader("Explanation")
-    # right_column.write("We predict human poses based on key joints.")
 
 def main():
 
@@ -168,5 +146,5 @@ def main():
         raise ValueError('Selected sidebar option is not implemented. Please open an issue on Github: https://github.com/robertklee/COCO-Human-Pose')
 
 main()
-expander_faq = st.beta_expander("More About Our Project")
+expander_faq = st.expander("More About Our Project")
 expander_faq.write("Hi there! If you have any questions about our project, or simply want to check out the source code, please visit our github repo: https://github.com/robertklee/COCO-Human-Pose")
