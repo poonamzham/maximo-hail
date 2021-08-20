@@ -16,34 +16,11 @@ from PIL import Image
 
 
 URL = os.environ.get('INGRESS_HOST')
+URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
 
-
-
-# from tensorflow import keras
-
-# import app_helper
-# from app_helper import AppHelper
-# from constants import *
-# from util import *
-
-# HASH_FUNCS = {
-#     tf.Session : id
-# }
-
-# config = tf.compat.v1.ConfigProto(
-#     device_count={'GPU': 1},
-#     intra_op_parallelism_threads=1,
-#     allow_soft_placement=True
-# )
-# config.gpu_options.allow_growth = True
-# config.gpu_options.per_process_gpu_memory_fraction = 0.6
-
-# session = tf.compat.v1.Session(config=config)
-
-# tf.compat.v1.keras.backend.set_session(session)
 
 st.title('Welcome to Room 6')
 st.write(" ------ ")
@@ -59,6 +36,8 @@ TEAM_DIR = 'team'
 MODEL_WEIGHTS_DEPLOYMENT_URL = 'https://github.com/robertklee/COCO-Human-Pose/releases/download/v0.1-alpha/hpe_epoch107_.hdf5'
 MODEL_JSON_DEPLOYMENT_URL = 'https://github.com/robertklee/COCO-Human-Pose/releases/download/v0.1-alpha/hpe_hourglass_stacks_04_.json'
 
+MAXIMO_VISUAL_INSPECTION_API_URL = 'https://mas83.visualinspection.maximo26.innovationcloud.info/api/dlapis/9ffb662b-790a-4fb2-a419-217fdf1ac0ce'
+
 # Constants for sidebar dropdown
 SIDEBAR_OPTION_PROJECT_INFO = "Show Project Info"
 # SIDEBAR_OPTION_DEMO_IMAGE = "Select a Demo Image"
@@ -66,58 +45,6 @@ SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image"
 # SIDEBAR_OPTION_MEET_TEAM = "Meet the Team"
 
 SIDEBAR_OPTIONS = [SIDEBAR_OPTION_PROJECT_INFO, SIDEBAR_OPTION_UPLOAD_IMAGE]
-
-# def get_file_content_as_string(path):
-#     url = 'https://raw.githubusercontent.com/robertklee/COCO-Human-Pose/master/' + path
-#     response = urllib.request.urlopen(url)
-#     return response.read().decode("utf-8")
-
-
-# def download_file(url, local_filename):
-#     with requests.get(url, stream=True) as r:
-#         with open(local_filename, 'wb') as f:
-#             shutil.copyfileobj(r.raw, f)
-
-#     return local_filename
-
-# Modified from https://github.com/thoppe/streamlit-skyAR/blob/master/streamlit_app.py
-# @st.cache
-# def ensure_model_exists():
-
-#     save_dest = Path(DEFAULT_MODEL_BASE_DIR)
-#     save_dest.mkdir(exist_ok=True)
-
-#     f_checkpoint = Path(MODEL_WEIGHTS)
-
-#     if not f_checkpoint.exists():
-#         with st.spinner("Downloading model weights... this may take up to a few minutes. (~150 MB) Please don't interrupt it."):
-#             download_file(url=MODEL_WEIGHTS_DEPLOYMENT_URL, local_filename=MODEL_WEIGHTS)
-
-#     f_architecture = Path(MODEL_JSON)
-
-#     if not f_architecture.exists():
-#         with st.spinner("Downloading model architecture... this may take a few seconds. Please don't interrupt it."):
-#             download_file(url=MODEL_JSON_DEPLOYMENT_URL, local_filename=MODEL_JSON)
-
-#     return AppHelper(model_weights=MODEL_WEIGHTS, model_json=MODEL_JSON)
-
-#         rescale_f = cv2.imread(img)
-#         rescale_f = cv2.cvtColor(rescale_f,cv2.COLOR_BGR2RGB)
-#         rescale_f = cv2.resize(rescale_f, dsize=(256,256))
-
-# @st.cache(allow_output_mutation=True, hash_funcs=HASH_FUNCS)
-# def load_model():
-    # config = tf.ConfigProto(allow_soft_placement=True)
-    # session = tf.Session(config=config)
-    # with session.as_default():
-    #     handle = ensure_model_exists()
-
-    #     # Needed to ensure model can be cached and called
-    #     handle.model._make_predict_function()
-    #     handle.model.summary()
-
-
-    # return 
 
 def response_from_server(url, image_file, verbose=True):
     """Makes a POST request to the server and returns the response.
@@ -131,8 +58,12 @@ def response_from_server(url, image_file, verbose=True):
         requests.models.Response: Response from the server.
     """
     #files = {'img': ('test.jpeg', image_file, 'image/jpeg')}
-    files = {'file': image_file}
-    response = requests.post(url, files=files)
+    # r = s.post(MAXIMO_VISUAL_INSPECTION_API_URL,
+    #                files={‘files’: (filename, f)},
+    #                verify=False)
+
+    files = {'file': ('test.jpg', image_file)}
+    response = requests.post(url, files=files, verify=False)
     status_code = response.status_code
     if verbose:
         msg = "Everything went well!" if status_code == 200 else "There was an error when handling the request."
@@ -165,22 +96,25 @@ def run_app(img):
     # display_image = cv2.resize(np.array(xb[0]), IMAGE_DISPLAY_SIZE,
     #                     interpolation=cv2.INTER_LINEAR)
     display_img = img #np.array(Image.open(img).convert('RGB'))
-    url_with_endpoint_no_params = BASE_URL + ENDPOINT
-    full_url = url_with_endpoint_no_params + "?model=" + MODEL
-    print(full_url)
+    # url_with_endpoint_no_params = BASE_URL + ENDPOINT
+    # full_url = url_with_endpoint_no_params + "?model=" + MODEL
+    print(MAXIMO_VISUAL_INSPECTION_API_URL)
 
     image_file = Image.open(display_img)
     
-    image_file.save("/.streamlit/test.jpg")
+    image_file.save("test.jpg")
 
-    with open("/.streamlit/test.jpg", "rb") as pred_file:
-        prediction = response_from_server(full_url, pred_file)
+    with open("test.jpg", "rb") as pred_file:
+        prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
 
     # prediction = response_from_server(full_url, image_file)
 
     print(prediction.status_code)
+    print(prediction)
 
-    result_img = get_image_from_response(prediction)
+
+    # result_img = get_image_from_response(prediction)
+    result_img = image_file
         
     left_column.image(image_file, caption = "Selected Input")
 
@@ -220,38 +154,6 @@ def main():
         st.sidebar.success("Project information showing on the right!")
         # st.write(get_file_content_as_string("Project_Info.md"))
 
-    # elif app_mode == SIDEBAR_OPTION_DEMO_IMAGE:
-    #     st.sidebar.write(" ------ ")
-
-    #     directory = os.path.join(DEFAULT_DATA_BASE_DIR, IMAGE_DIR)
-
-    #     photos = []
-    #     for file in os.listdir(directory):
-    #         filepath = os.path.join(directory, file)
-
-    #         # Find all valid images
-    #         if imghdr.what(filepath) is not None:
-    #             photos.append(file)
-
-    #     photos.sort()
-
-    #     option = st.sidebar.selectbox('Please select a sample image, then click Magic Time button', photos)
-    #     pressed = st.sidebar.button('Magic Time')
-    #     if pressed:
-    #         st.empty()
-    #         st.sidebar.write('Please wait for the magic to happen! This may take up to a minute.')
-
-    #         pic = os.path.join(directory, option)
-
-    #         run_app(pic)
-
-    #     st.sidebar.write("OR")
-    #     fun = st.sidebar.button('Fur-riend')
-    #     if fun:
-    #         st.sidebar.write('Please enjoy our favourite Kangaroo!')
-    #         k = os.path.join(DEFAULT_DATA_BASE_DIR, 'Macropus_rufogriseus_rufogriseus_Bruny.jpg')
-    #         run_app(k)
-
     elif app_mode == SIDEBAR_OPTION_UPLOAD_IMAGE:
 
 
@@ -262,38 +164,6 @@ def main():
         #upload = st.empty()
         #with upload:
 
-
-    # elif app_mode == SIDEBAR_OPTION_MEET_TEAM:
-    #     st.sidebar.write(" ------ ")
-    #     st.subheader("We are the Posers")
-    #     first_column, second_column, third_column, forth_column, fifth_column, sixth_column = st.beta_columns(6)
-
-    #     # third_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'wanze.jpg'),      use_column_width = True, caption = "Wanze")
-    #     # second_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'robert.png'),    use_column_width = True, caption = "Robert")
-    #     # first_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'julian.jpg'),     use_column_width = True, caption = "Julian")
-    #     # forth_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'nicole.jpg'),     use_column_width = True, caption = "Nicole")
-    #     # fifth_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'rafay.png'),      use_column_width = True, caption = 'Rafay')
-    #     # sixth_column.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'corey.jpg'),      use_column_width = True, caption = "Corey")
-
-    #     # first_column_predict, second_column_predict, third_column_predict,forth_column_predict, fifth_column_predict, sixth_column_predict = st.beta_columns(6)
-    #     # third_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'wanze_output.png'),       use_column_width = True, caption = "Wanze Pose")
-    #     # second_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'robert_output.png'),     use_column_width = True, caption = "Robert Pose")
-    #     # first_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'julian_output.png'),      use_column_width = True, caption = "Julian Pose")
-    #     # forth_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'nicole_output.png'),      use_column_width = True, caption = "Nicole Pose")
-    #     # fifth_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'rafay_output.png'),       use_column_width = True, caption = "Rafay Pose")
-    #     # sixth_column_predict.image(os.path.join(DEFAULT_DATA_BASE_DIR, TEAM_DIR, 'corey_output.png'),       use_column_width = True, caption = "Corey Pose")
-
-
-        # st.sidebar.write('Please feel free to connect with us on Linkedin!')
-        # st.sidebar.success('Hope you had a great time :)')
-
-        # expandar_linkedin = st.beta_expander('Contact Information')
-        # expandar_linkedin.write('Robert: https://www.linkedin.com/in/robert-k-lee/')
-        # expandar_linkedin.write('Julian: https://www.linkedin.com/in/julianrocha/')
-        # expandar_linkedin.write('Wanze: https://www.linkedin.com/in/wanze-zhang-59320b137/')
-        # expandar_linkedin.write('Nicole: https://www.linkedin.com/in/nicole-peverley-64181316a/')
-        # expandar_linkedin.write('Rafay: https://www.linkedin.com/in/rafay-chaudhy')
-        # expandar_linkedin.write('Corey: https://www.linkedin.com/in/corey-koelewyn-5b45061ab')
     else:
         raise ValueError('Selected sidebar option is not implemented. Please open an issue on Github: https://github.com/robertklee/COCO-Human-Pose')
 
