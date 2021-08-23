@@ -6,7 +6,7 @@ import ssl
 import tempfile
 # import urllib.request
 from pathlib import Path
-
+import helper as h
 import cv2
 import numpy as np
 # import pandas as pd
@@ -15,13 +15,13 @@ import streamlit as st
 from PIL import Image
 import json
 
-
+DARK_BLUE = (139, 0, 0)
 URL = os.environ.get('INGRESS_HOST')
 URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
-
+s = requests.Session()
 
 st.title('Welcome to Room 6')
 st.write(" ------ ")
@@ -81,11 +81,54 @@ def get_image_from_response(response):
     file_bytes = np.asarray(bytearray(image_stream.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
     return image
     # filename = "image_with_objects.jpeg"
     # cv2.imwrite(f'images_predicted/{filename}', image)
     # display(Image(f'images_predicted/{filename}'))
 
+
+def getROI(filename,jsonfile):
+    cars = 0
+    trackers = []
+    counters = {
+        'left_lane': 0,
+        'right_lane': 0,
+        'lost_trackers': 0,
+        'frames': 0,
+    }
+
+
+
+
+
+    counters['frames'] += 1
+    img = cv2.imread(filename)
+    boxes, counters,trackers = h.update_trackers(img, counters,trackers)
+    cars = 0
+
+    jsonresp = jsonfile
+    print(type(jsonresp))
+    print(jsonresp['classified'])
+
+    for obj in h.not_tracked(jsonresp['classified'], boxes):
+        if h.in_range(obj):
+            cars += 1
+            h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
+
+    # Draw the running total of cars in the image in the upper-left corner
+    cv2.putText(img, 'Dents detected: ' + str(cars), (30, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 1.5, DARK_BLUE, 4, cv2.LINE_AA)
+    #     # Add note with count of trackers lost
+    #     cv2.putText(img, 'Cars lost: ' + str(counters['lost_trackers']), (35, 85),
+    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, DARK_BLUE, 1, cv2.LINE_AA)
+
+    #cv2.imwrite(filename.split('/')[1], img)
+    # print("Processed file {num} of {total_frames_in_folder}".format(
+    #     num=counters['frames'], total_frames_in_folder=total_frames_in_folder), end="\r")
+
+    print("\nDone")
+    return img
 
 def run_app(img):
 
@@ -101,15 +144,19 @@ def run_app(img):
 
     image_file = Image.open(display_img)
     
-    image_file.save("test.jpg")
+    image_file.save("original.jpg")
+    image_file.save("result.jpg")
 
-    with open("test.jpg", "rb") as pred_file:
+    with open("original.jpg", "rb") as pred_file:
         prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
 
     st.write(prediction)
+    # rc, jsonresp = h.detect_objects(image_file,s,MAXIMO_VISUAL_INSPECTION_API_URL)
 
-    # result_img = get_image_from_response(prediction)
-    result_img = image_file
+    result_img = getROI("result.jpg", prediction)
+
+    #result_img = get_image_from_response(prediction)
+    #result_img = image_file
         
     left_column.image(image_file, caption = "Selected Input")
 
