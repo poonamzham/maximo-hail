@@ -21,9 +21,8 @@ URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
-s = requests.Session()
 
-st.title('Welcome to Room 6')
+st.title('Welcome to Maximo Hail Detection Demo')
 st.write(" ------ ")
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -98,20 +97,12 @@ def getROI(filename,jsonfile):
         'frames': 0,
     }
 
-
-
-
-
     counters['frames'] += 1
     img = cv2.imread(filename)
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
 
-    jsonresp = jsonfile
-    print(type(jsonresp))
-    print(jsonresp['classified'])
-
-    for obj in h.not_tracked(jsonresp['classified'], boxes):
+    for obj in h.not_tracked(jsonfile['classified'], boxes):
         if h.in_range(obj):
             cars += 1
             h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
@@ -134,15 +125,7 @@ def run_app(img):
 
     left_column, right_column = st.columns(2)
 
-    # xb, yb = app_helper.load_and_preprocess_img(img, num_hg_blocks=1)
-    # display_image = cv2.resize(np.array(xb[0]), IMAGE_DISPLAY_SIZE,
-    #                     interpolation=cv2.INTER_LINEAR)
-    display_img = img #np.array(Image.open(img).convert('RGB'))
-    # url_with_endpoint_no_params = BASE_URL + ENDPOINT
-    # full_url = url_with_endpoint_no_params + "?model=" + MODEL
-    print(MAXIMO_VISUAL_INSPECTION_API_URL)
-
-    image_file = Image.open(display_img)
+    image_file = Image.open(img)
     
     image_file.save("original.jpg")
     image_file.save("result.jpg")
@@ -151,19 +134,12 @@ def run_app(img):
         prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
 
     st.write(prediction)
-    # rc, jsonresp = h.detect_objects(image_file,s,MAXIMO_VISUAL_INSPECTION_API_URL)
 
     result_img = getROI("result.jpg", prediction)
 
-    #result_img = get_image_from_response(prediction)
-    #result_img = image_file
-        
     left_column.image(image_file, caption = "Selected Input")
-
-
     right_column.image(result_img,  caption = "Predicted Keypoints")
-    # st.image(skeleton_img, caption = 'FINAL: Predicted Pose')
-
+\
 
 def main():
 
