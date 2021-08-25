@@ -22,9 +22,18 @@ rules:
       - create
       - patch
   - apiGroups:
+      - apps
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - create
+      - patch
+  - apiGroups:
       - ""
     resources:
       - services
+      - persistentvolumeclaims
     verbs:
       - get
       - patch

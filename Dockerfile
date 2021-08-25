@@ -2,10 +2,9 @@ FROM python:3.7-buster
 
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /
-RUN mkdir -p .streamlit
-
 WORKDIR /usr/src/app
+
+ENV HOME="/usr/src/app"
 
 COPY requirements.txt .
 
@@ -14,7 +13,6 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8501
 
-RUN mkdir -p /streamlit
 COPY app.py helper.py ./
 
 ENTRYPOINT ["streamlit", "run", "--server.headless=true"]
