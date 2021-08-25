@@ -14,6 +14,7 @@ RUN pip install -r requirements.txt
 EXPOSE 8501
 
 COPY app.py helper.py ./
+RUN mkdir -p .streamlit
 
 ENTRYPOINT ["streamlit", "run", "--server.headless=true"]
 
