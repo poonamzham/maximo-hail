@@ -2,9 +2,12 @@ FROM python:3.7-buster
 
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
+WORKDIR /work/
+RUN chown 1001 /work \
+    && chmod "g+rwX" /work \
+    && chown 1001:root /work
 
-ENV HOME="/usr/src/app"
+ENV HOME='/work'
 
 COPY requirements.txt .
 
@@ -13,8 +16,9 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8501
 
-COPY app.py helper.py ./
-RUN mkdir -p .streamlit
+COPY --chown=1001:root app.py helper.py ./
+
+USER 1001
 
 ENTRYPOINT ["streamlit", "run", "--server.headless=true"]
 
