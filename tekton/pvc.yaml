@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: ibm.io/ibmc-block
+  name: maximo-pvc
+  namespace: leo-liu-pipeline-from-scratch
+spec:
+  storageClassName: ibmc-vpc-block-10iops-tier
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
