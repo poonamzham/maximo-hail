@@ -57,10 +57,10 @@ def response_from_server(url, image_file, verbose=True):
     Returns:
         requests.models.Response: Response from the server.
     """
-    with open('test.jpg', 'rb') as f:
+    with open('original.jpg', 'rb') as f:
             # WARNING! verify=False is here to allow an untrusted cert!
             response = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
-                    files={'files': ('test.jpg', f)},
+                    files={'files': ('original.jpg', f)},
                     verify=False)
     status_code = response.status_code
     if verbose:
@@ -82,10 +82,6 @@ def get_image_from_response(response):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     return image
-    # filename = "image_with_objects.jpeg"
-    # cv2.imwrite(f'images_predicted/{filename}', image)
-    # display(Image(f'images_predicted/{filename}'))
-
 
 def getROI(filename,jsonfile):
     cars = 0
@@ -110,13 +106,7 @@ def getROI(filename,jsonfile):
     # Draw the running total of cars in the image in the upper-left corner
     cv2.putText(img, 'Dents detected: ' + str(cars), (30, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.5, DARK_BLUE, 4, cv2.LINE_AA)
-    #     # Add note with count of trackers lost
-    #     cv2.putText(img, 'Cars lost: ' + str(counters['lost_trackers']), (35, 85),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, DARK_BLUE, 1, cv2.LINE_AA)
 
-    #cv2.imwrite(filename.split('/')[1], img)
-    # print("Processed file {num} of {total_frames_in_folder}".format(
-    #     num=counters['frames'], total_frames_in_folder=total_frames_in_folder), end="\r")
 
     print("\nDone")
     return img
