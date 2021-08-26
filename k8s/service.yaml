@@ -11,7 +11,7 @@ spec:
     - name: http
       port: 80
       protocol: TCP
-      targetPort: 3000
+      targetPort: 8501
   selector:
     app.kubernetes.io/instance: maximo-hail-app-instance
     app.kubernetes.io/name: maximo-hail-app
