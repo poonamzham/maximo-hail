@@ -104,6 +104,7 @@ def getROI(filename,jsonfile):
 
     counters['frames'] += 1
     img = cv2.imread(filename)
+
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
 
@@ -112,11 +113,14 @@ def getROI(filename,jsonfile):
     print(jsonresp['classified'])
 
     for obj in h.not_tracked(jsonresp['classified'], boxes):
-        if h.in_range(obj):
-            cars += 1
-            h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
+        if obj['confidence']>0.60:
+            if h.in_range(obj):
+                cars += 1
+                h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
 
     # Draw the running total of cars in the image in the upper-left corner
+
+
     cv2.putText(img, 'Dents detected: ' + str(cars), (30, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.5, DARK_BLUE, 4, cv2.LINE_AA)
     #     # Add note with count of trackers lost
@@ -142,23 +146,26 @@ def run_app(img):
     # full_url = url_with_endpoint_no_params + "?model=" + MODEL
     print(MAXIMO_VISUAL_INSPECTION_API_URL)
 
-    image_file = Image.open(display_img)
-    
-    image_file.save("original.jpg")
-    image_file.save("result.jpg")
+    #image_file = Image.open(display_img)
+    display_img=np.array(Image.open(display_img).convert('RGB'))
+    cv2.imwrite("original.jpg",display_img)
+    cv2.imwrite("result.jpg", display_img)
+    #image_file.save("original.jpg")
+    #image_file.save("result.jpg")
 
-    with open("original.jpg", "rb") as pred_file:
-        prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
+    #with open("original.jpg", "rb") as pred_file:
+    #    prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
 
-    st.write(prediction)
-    # rc, jsonresp = h.detect_objects(image_file,s,MAXIMO_VISUAL_INSPECTION_API_URL)
+        #st.write(prediction)
+    rc, jsonresp = h.detect_objects("result.jpg",s,MAXIMO_VISUAL_INSPECTION_API_URL)
 
-    result_img = getROI("result.jpg", prediction)
+    result_img = getROI("result.jpg", jsonresp)
 
+    st.write(jsonresp)
     #result_img = get_image_from_response(prediction)
     #result_img = image_file
         
-    left_column.image(image_file, caption = "Selected Input")
+    left_column.image(img, caption = "Selected Input")
 
 
     right_column.image(result_img,  caption = "Predicted Keypoints")

@@ -11,6 +11,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import cv2
+import numpy as np
 
 WHITE = (255, 255, 255)
 YELLOW = (66, 244, 238)
@@ -194,3 +195,4 @@ def add_new_object(obj, image, cars,trackers):
         trackers.append((tracker, car))
 
     label_object(GREEN, YELLOW, fontface, image, car, textsize, 4, xmax, xmid, xmin, ymax, ymid, ymin)
+
