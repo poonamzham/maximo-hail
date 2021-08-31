@@ -21,8 +21,9 @@ URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
+s = requests.Session()
 
-st.title('Welcome to Maximo Hail Detection Demo')
+st.title('Welcome to Room 6')
 st.write(" ------ ")
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -57,10 +58,10 @@ def response_from_server(url, image_file, verbose=True):
     Returns:
         requests.models.Response: Response from the server.
     """
-    with open('original.jpg', 'rb') as f:
+    with open('test.jpg', 'rb') as f:
             # WARNING! verify=False is here to allow an untrusted cert!
             response = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
-                    files={'files': ('original.jpg', f)},
+                    files={'files': ('test.jpg', f)},
                     verify=False)
     status_code = response.status_code
     if verbose:
@@ -82,6 +83,10 @@ def get_image_from_response(response):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     return image
+    # filename = "image_with_objects.jpeg"
+    # cv2.imwrite(f'images_predicted/{filename}', image)
+    # display(Image(f'images_predicted/{filename}'))
+
 
 def getROI(filename,jsonfile):
     cars = 0
@@ -93,17 +98,29 @@ def getROI(filename,jsonfile):
         'frames': 0,
     }
 
+
+
+
+
     counters['frames'] += 1
     img = cv2.imread(filename)
+
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
 
-    for obj in h.not_tracked(jsonfile['classified'], boxes):
-        if h.in_range(obj):
-            cars += 1
-            h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
+    jsonresp = jsonfile
+    print(type(jsonresp))
+    print(jsonresp['classified'])
+
+    for obj in h.not_tracked(jsonresp['classified'], boxes):
+        if obj['confidence']>0.60:
+            if h.in_range(obj):
+                cars += 1
+                h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
 
     # Draw the running total of cars in the image in the upper-left corner
+
+
     cv2.putText(img, 'Dents detected: ' + str(cars), (30, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.5, DARK_BLUE, 4, cv2.LINE_AA)
 
@@ -115,21 +132,26 @@ def run_app(img):
 
     left_column, right_column = st.columns(2)
 
-    image_file = Image.open(img)
-    
-    image_file.save("original.jpg")
-    image_file.save("result.jpg")
+    # xb, yb = app_helper.load_and_preprocess_img(img, num_hg_blocks=1)
+    # display_image = cv2.resize(np.array(xb[0]), IMAGE_DISPLAY_SIZE,
+    #                     interpolation=cv2.INTER_LINEAR)
+    display_img = img #np.array(Image.open(img).convert('RGB'))
+    # url_with_endpoint_no_params = BASE_URL + ENDPOINT
+    # full_url = url_with_endpoint_no_params + "?model=" + MODEL
+    print(MAXIMO_VISUAL_INSPECTION_API_URL)
+    #image_file = Image.open(display_img)
+    display_img=np.array(Image.open(display_img).convert('RGB'))
+    cv2.imwrite("original.jpg",display_img)
+    cv2.imwrite("result.jpg", display_img)
 
-    with open("original.jpg", "rb") as pred_file:
-        prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
+    rc, jsonresp = h.detect_objects("result.jpg",s,MAXIMO_VISUAL_INSPECTION_API_URL)
 
-    st.write(prediction)
-
-    result_img = getROI("result.jpg", prediction)
-
-    left_column.image(image_file, caption = "Selected Input")
+    result_img = getROI("result.jpg", jsonresp)
+    st.write(jsonresp)
+    left_column.image(img, caption = "Selected Input")
     right_column.image(result_img,  caption = "Predicted Keypoints")
-\
+
+
 
 def main():
 
