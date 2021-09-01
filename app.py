@@ -12,12 +12,11 @@ from PIL import Image
 import json
 
 DARK_BLUE = (139, 0, 0)
-URL = os.environ.get('INGRESS_HOST')
+# URL = os.environ.get('INGRESS_HOST')
 URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
-s = requests.Session()
 
 st.title('Welcome to Maximo Hail Detection Demo')
 st.write(" ------ ")
@@ -27,19 +26,12 @@ IMAGE_DISPLAY_SIZE = (330, 330)
 IMAGE_DIR = 'demo_photo'
 TEAM_DIR = 'team'
 
-# MODEL_WEIGHTS = f'{DEFAULT_MODEL_BASE_DIR}/hpe_epoch107_.hdf5'
-# MODEL_JSON = f'{DEFAULT_MODEL_BASE_DIR}/hpe_hourglass_stacks_04_.json'
-
-MODEL_WEIGHTS_DEPLOYMENT_URL = 'https://github.com/robertklee/COCO-Human-Pose/releases/download/v0.1-alpha/hpe_epoch107_.hdf5'
-MODEL_JSON_DEPLOYMENT_URL = 'https://github.com/robertklee/COCO-Human-Pose/releases/download/v0.1-alpha/hpe_hourglass_stacks_04_.json'
 
 MAXIMO_VISUAL_INSPECTION_API_URL = 'https://mas83.visualinspection.maximo26.innovationcloud.info/api/dlapis/9ffb662b-790a-4fb2-a419-217fdf1ac0ce'
 
 # Constants for sidebar dropdown
 SIDEBAR_OPTION_PROJECT_INFO = "Show Project Info"
-# SIDEBAR_OPTION_DEMO_IMAGE = "Select a Demo Image"
 SIDEBAR_OPTION_UPLOAD_IMAGE = "Upload an Image"
-# SIDEBAR_OPTION_MEET_TEAM = "Meet the Team"
 
 SIDEBAR_OPTIONS = [SIDEBAR_OPTION_PROJECT_INFO, SIDEBAR_OPTION_UPLOAD_IMAGE]
 
@@ -79,9 +71,6 @@ def get_image_from_response(response):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     return image
-    # filename = "image_with_objects.jpeg"
-    # cv2.imwrite(f'images_predicted/{filename}', image)
-    # display(Image(f'images_predicted/{filename}'))
 
 
 def getROI(filename,jsonfile):
@@ -94,18 +83,13 @@ def getROI(filename,jsonfile):
         'frames': 0,
     }
 
-
-
-
-
     counters['frames'] += 1
     img = cv2.imread(filename)
 
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
-    jsonresp = jsonfile
 
-    for obj in h.not_tracked(jsonresp['classified'], boxes):
+    for obj in h.not_tracked(jsonfile['classified'], boxes):
         if obj['confidence']>0.60:
             if h.in_range(obj):
                 cars += 1
@@ -129,18 +113,17 @@ def run_app(img):
     cv2.imwrite("original.jpg",display_img)
     cv2.imwrite("result.jpg", display_img)
 
-    rc, jsonresp = h.detect_objects("result.jpg",s,MAXIMO_VISUAL_INSPECTION_API_URL)
+    rc, jsonresp = h.detect_objects("result.jpg",MAXIMO_VISUAL_INSPECTION_API_URL)
     result_img = getROI("result.jpg", jsonresp)
     st.write(jsonresp)
     left_column.image(img, caption = "Selected Input")
     right_column.image(result_img,  caption = "Predicted Keypoints")
 
 
-
 def main():
 
     st.sidebar.warning('\
-        Please upload SINGLE-person images. For best results, please also CENTER the person in the image.')
+        Please upload car images.')
     st.sidebar.write(" ------ ")
     st.sidebar.title("Explore the Following")
 
@@ -162,8 +145,8 @@ def main():
         #with upload:
 
     else:
-        raise ValueError('Selected sidebar option is not implemented. Please open an issue on Github: https://github.com/robertklee/COCO-Human-Pose')
+        raise ValueError('Selected sidebar option is not implemented. Please open an issue on Github: https://github.com/sherryyyu/maximo-hail')
 
 main()
 expander_faq = st.expander("More About Our Project")
-expander_faq.write("Hi there! If you have any questions about our project, or simply want to check out the source code, please visit our github repo: https://github.com/robertklee/COCO-Human-Pose")
+expander_faq.write("Hi there! If you have any questions about our project, or simply want to check out the source code, please visit our github repo: https://github.com/sherryyyu/maximo-hail")

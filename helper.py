@@ -17,11 +17,10 @@ DARK_BLUE = (139, 0, 0)
 GRAY = (128, 128, 128)
 START_LINE = 0
 
-def detect_objects(filename,s,MAXIMO_VISUAL_INSPECTION_API_URL):
-    print(filename)
+def detect_objects(filename,MAXIMO_VISUAL_INSPECTION_API_URL):
     with open(filename, 'rb') as f:
         # WARNING! verify=False is here to allow an untrusted cert!
-        r = s.post(MAXIMO_VISUAL_INSPECTION_API_URL,
+        r = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
                    files={'files': (filename, f)},
                    verify=False)
 
