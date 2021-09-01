@@ -1,11 +1,7 @@
-import imghdr
+
 import os
 import io
-import shutil
 import ssl
-import tempfile
-# import urllib.request
-from pathlib import Path
 import helper as h
 import cv2
 import numpy as np
@@ -23,7 +19,7 @@ ENDPOINT = '/predict'
 MODEL = 'yolov4'
 s = requests.Session()
 
-st.title('Welcome to Room 6')
+st.title('Welcome to Maximo Hail Detection Demo')
 st.write(" ------ ")
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -58,10 +54,10 @@ def response_from_server(url, image_file, verbose=True):
     Returns:
         requests.models.Response: Response from the server.
     """
-    with open('test.jpg', 'rb') as f:
+    with open('original.jpg', 'rb') as f:
             # WARNING! verify=False is here to allow an untrusted cert!
             response = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
-                    files={'files': ('test.jpg', f)},
+                    files={'files': ('orignal.jpg', f)},
                     verify=False)
     status_code = response.status_code
     if verbose:
@@ -107,10 +103,7 @@ def getROI(filename,jsonfile):
 
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
-
     jsonresp = jsonfile
-    print(type(jsonresp))
-    print(jsonresp['classified'])
 
     for obj in h.not_tracked(jsonresp['classified'], boxes):
         if obj['confidence']>0.60:
@@ -131,21 +124,12 @@ def getROI(filename,jsonfile):
 def run_app(img):
 
     left_column, right_column = st.columns(2)
-
-    # xb, yb = app_helper.load_and_preprocess_img(img, num_hg_blocks=1)
-    # display_image = cv2.resize(np.array(xb[0]), IMAGE_DISPLAY_SIZE,
-    #                     interpolation=cv2.INTER_LINEAR)
     display_img = img #np.array(Image.open(img).convert('RGB'))
-    # url_with_endpoint_no_params = BASE_URL + ENDPOINT
-    # full_url = url_with_endpoint_no_params + "?model=" + MODEL
-    print(MAXIMO_VISUAL_INSPECTION_API_URL)
-    #image_file = Image.open(display_img)
     display_img=np.array(Image.open(display_img).convert('RGB'))
     cv2.imwrite("original.jpg",display_img)
     cv2.imwrite("result.jpg", display_img)
 
     rc, jsonresp = h.detect_objects("result.jpg",s,MAXIMO_VISUAL_INSPECTION_API_URL)
-
     result_img = getROI("result.jpg", jsonresp)
     st.write(jsonresp)
     left_column.image(img, caption = "Selected Input")

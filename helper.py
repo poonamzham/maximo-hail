@@ -1,17 +1,13 @@
 
 import json
-import glob
 import math
-import os
-import shutil
 
-import cv2
-from IPython.display import clear_output, Image, display
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import cv2
-import numpy as np
+
 
 WHITE = (255, 255, 255)
 YELLOW = (66, 244, 238)
