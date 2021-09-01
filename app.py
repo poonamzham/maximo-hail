@@ -1,11 +1,7 @@
-import imghdr
+
 import os
 import io
-import shutil
 import ssl
-import tempfile
-# import urllib.request
-from pathlib import Path
 import helper as h
 import cv2
 import numpy as np
@@ -21,6 +17,7 @@ URL = 'localhost'
 BASE_URL = 'http://' + URL + ':8000'
 ENDPOINT = '/predict'
 MODEL = 'yolov4'
+s = requests.Session()
 
 st.title('Welcome to Maximo Hail Detection Demo')
 st.write(" ------ ")
@@ -60,7 +57,7 @@ def response_from_server(url, image_file, verbose=True):
     with open('original.jpg', 'rb') as f:
             # WARNING! verify=False is here to allow an untrusted cert!
             response = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
-                    files={'files': ('original.jpg', f)},
+                    files={'files': ('orignal.jpg', f)},
                     verify=False)
     status_code = response.status_code
     if verbose:
@@ -82,6 +79,10 @@ def get_image_from_response(response):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
     return image
+    # filename = "image_with_objects.jpeg"
+    # cv2.imwrite(f'images_predicted/{filename}', image)
+    # display(Image(f'images_predicted/{filename}'))
+
 
 def getROI(filename,jsonfile):
     cars = 0
@@ -93,17 +94,26 @@ def getROI(filename,jsonfile):
         'frames': 0,
     }
 
+
+
+
+
     counters['frames'] += 1
     img = cv2.imread(filename)
+
     boxes, counters,trackers = h.update_trackers(img, counters,trackers)
     cars = 0
+    jsonresp = jsonfile
 
-    for obj in h.not_tracked(jsonfile['classified'], boxes):
-        if h.in_range(obj):
-            cars += 1
-            h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
+    for obj in h.not_tracked(jsonresp['classified'], boxes):
+        if obj['confidence']>0.60:
+            if h.in_range(obj):
+                cars += 1
+                h.add_new_object(obj, img, cars,trackers)  # Label and start tracking
 
     # Draw the running total of cars in the image in the upper-left corner
+
+
     cv2.putText(img, 'Dents detected: ' + str(cars), (30, 60),
                 cv2.FONT_HERSHEY_SIMPLEX, 1.5, DARK_BLUE, 4, cv2.LINE_AA)
 
@@ -114,22 +124,18 @@ def getROI(filename,jsonfile):
 def run_app(img):
 
     left_column, right_column = st.columns(2)
+    display_img = img #np.array(Image.open(img).convert('RGB'))
+    display_img=np.array(Image.open(display_img).convert('RGB'))
+    cv2.imwrite("original.jpg",display_img)
+    cv2.imwrite("result.jpg", display_img)
 
-    image_file = Image.open(img)
-    
-    image_file.save("original.jpg")
-    image_file.save("result.jpg")
-
-    with open("original.jpg", "rb") as pred_file:
-        prediction = response_from_server(MAXIMO_VISUAL_INSPECTION_API_URL, pred_file)
-
-    st.write(prediction)
-
-    result_img = getROI("result.jpg", prediction)
-
-    left_column.image(image_file, caption = "Selected Input")
+    rc, jsonresp = h.detect_objects("result.jpg",s,MAXIMO_VISUAL_INSPECTION_API_URL)
+    result_img = getROI("result.jpg", jsonresp)
+    st.write(jsonresp)
+    left_column.image(img, caption = "Selected Input")
     right_column.image(result_img,  caption = "Predicted Keypoints")
-\
+
+
 
 def main():
 
