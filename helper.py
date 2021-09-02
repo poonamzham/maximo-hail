@@ -1,16 +1,13 @@
 
 import json
-import glob
 import math
-import os
-import shutil
 
-import cv2
-from IPython.display import clear_output, Image, display
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 import cv2
+
 
 WHITE = (255, 255, 255)
 YELLOW = (66, 244, 238)
@@ -20,11 +17,10 @@ DARK_BLUE = (139, 0, 0)
 GRAY = (128, 128, 128)
 START_LINE = 0
 
-def detect_objects(filename,s,MAXIMO_VISUAL_INSPECTION_API_URL):
-    print(filename)
+def detect_objects(filename,MAXIMO_VISUAL_INSPECTION_API_URL):
     with open(filename, 'rb') as f:
         # WARNING! verify=False is here to allow an untrusted cert!
-        r = s.post(MAXIMO_VISUAL_INSPECTION_API_URL,
+        r = requests.post(MAXIMO_VISUAL_INSPECTION_API_URL,
                    files={'files': (filename, f)},
                    verify=False)
 
@@ -194,3 +190,4 @@ def add_new_object(obj, image, cars,trackers):
         trackers.append((tracker, car))
 
     label_object(GREEN, YELLOW, fontface, image, car, textsize, 4, xmax, xmid, xmin, ymax, ymid, ymin)
+
