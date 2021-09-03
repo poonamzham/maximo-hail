@@ -1,15 +1,15 @@
 apiVersion: v1
 imagePullSecrets:
-- name: build-bot-dockercfg-w2jrn
+- name: build-bot-dockercfg-x6gfq
 kind: ServiceAccount
 metadata:
-  creationTimestamp: "2021-08-25T02:16:32Z"
+  creationTimestamp: "2021-09-03T01:15:19Z"
   name: build-bot
-  namespace: maximo-hail-project
-  resourceVersion: "282391"
-  selfLink: /api/v1/namespaces/maximo-hail-project/serviceaccounts/build-bot
-  uid: ed5695ae-6f1f-4f24-a59a-540c09873b85
+  namespace: pz-maximo-demo
+  resourceVersion: "1846834"
+  selfLink: /api/v1/namespaces/pz-maximo-demo/serviceaccounts/build-bot
+  uid: d3cc1b8c-e9e2-4823-948f-7cc3ffd594f1
 secrets:
-- name: build-bot-token-p9w2d
-- name: build-bot-dockercfg-w2jrn
-- name: maximo-quay-io-credentials
+- name: build-bot-token-sq6k6
+- name: build-bot-dockercfg-x6gfq
+- name: quay-io-credentials

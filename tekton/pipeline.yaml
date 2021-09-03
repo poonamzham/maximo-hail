@@ -4,10 +4,10 @@ metadata:
   annotations:
     app.openshift.io/runtime: python
   labels:
-    app: maximo-hail-pipeline
-    app.kubernetes.io/instance: maximo-hail-pipeline-instance
-    app.kubernetes.io/name: maximo-hail-pipeline
-  name: maximo-hail-pipeline
+    app: maximo-hail-pz-pipeline
+    app.kubernetes.io/instance: maximo-hail-pz-pipeline-instance
+    app.kubernetes.io/name: maximo-hail-pz-pipeline
+  name: maximo-hail-pz-pipeline
 spec:
   params:
     - name: source-repo
