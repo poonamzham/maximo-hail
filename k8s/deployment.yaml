@@ -3,27 +3,27 @@ kind: Deployment
 metadata:
   annotations:
     app.openshift.io/vcs-ref: f7580aa1eb6f7176705176e201ecff4de93edafb
-    app.openshift.io/vcs-uri: https://github.com/sherryyyu/maximo-hail
+    app.openshift.io/vcs-uri: https://github.com/poonamzham/maximo-hail
   labels:
-    app: maximo-hail-app
-    app.kubernetes.io/instance: maximo-hail-app-instance
-    app.kubernetes.io/name: maximo-hail-app
+    app: maximo-hail-pz-app
+    app.kubernetes.io/instance: maximo-hail-pz-app-instance
+    app.kubernetes.io/name: maximo-hail-pz-app
     app.openshift.io/runtime: python
-  name: maximo-hail-app
+  name: maximo-hail-pz-app
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app.kubernetes.io/instance: maximo-hail-app-instance
-      app.kubernetes.io/name: maximo-hail-app
+      app.kubernetes.io/instance: maximo-hail-app-pz-instance
+      app.kubernetes.io/name: maximo-hail-pz-app
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app.kubernetes.io/instance: maximo-hail-app-instance
-        app.kubernetes.io/name: maximo-hail-app
+        app.kubernetes.io/instance: maximo-hail-pz-app-instance
+        app.kubernetes.io/name: maximo-hail-pz-app
     spec:
       containers:
         - env:
@@ -31,7 +31,7 @@ spec:
             - name: PROTOCOLS
             - name: LOG_LEVEL
               value: debug
-          image: quay.io/sherryyu/maximo-hail
+          image: quay.io/poonamzham0/maximo_demo
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -42,7 +42,7 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
-          name: maximo-hail-app
+          name: maximo-hail-pz-app
           ports:
             - containerPort: 8501
               name: http

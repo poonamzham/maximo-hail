@@ -3,10 +3,13 @@ imagePullSecrets:
 - name: build-bot-dockercfg-x6gfq
 kind: ServiceAccount
 metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","imagePullSecrets":[{"name":"build-bot-dockercfg-x6gfq"}],"kind":"ServiceAccount","metadata":{"annotations":{},"creationTimestamp":"2021-09-03T01:15:19Z","name":"build-bot","namespace":"pz-maximo-demo","resourceVersion":"1850212","selfLink":"/api/v1/namespaces/pz-maximo-demo/serviceaccounts/build-bot","uid":"d3cc1b8c-e9e2-4823-948f-7cc3ffd594f1"},"secrets":[{"name":"build-bot-token-sq6k6"},{"name":"build-bot-dockercfg-x6gfq"},{"name":"quay-io-credentials"}]}
   creationTimestamp: "2021-09-03T01:15:19Z"
   name: build-bot
   namespace: pz-maximo-demo
-  resourceVersion: "1846834"
+  resourceVersion: "1864730"
   selfLink: /api/v1/namespaces/pz-maximo-demo/serviceaccounts/build-bot
   uid: d3cc1b8c-e9e2-4823-948f-7cc3ffd594f1
 secrets:

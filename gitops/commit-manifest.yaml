@@ -102,7 +102,7 @@ spec:
           PROTOCOL="https"
         fi
 
-        git config --global user.email "sherry.shuang.yu@gmail.com"
+        git config --global user.email "poonamzham@gmail.com"
         git config --global user.name "${NAMESPACE}"
 
         echo "git clone ${BRANCH_CMD} ${PROTOCOL}://${GIT_USERNAME}:<redacted>@${GIT_HOST}/${GIT_ORG}/${GIT_REPO}"
