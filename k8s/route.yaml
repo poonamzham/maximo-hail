@@ -4,12 +4,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: Validate=false
     openshift.io/host.generated: "true"
-  name: maximo-hail-app
+  name: maximo-hail-pz-app
 spec:
   tls:
     termination: edge
   to:
     kind: Service
-    name: maximo-hail-app
+    name: maximo-hail-pz-app
     weight: 100
   wildcardPolicy: None

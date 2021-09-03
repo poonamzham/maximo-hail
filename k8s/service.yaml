@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: maximo-hail-app
-    app.kubernetes.io/instance: maximo-hail-app-instance
-    app.kubernetes.io/name: maximo-hail-app
-  name: maximo-hail-app
+    app: maximo-hail-pz-app
+    app.kubernetes.io/instance: maximo-hail-pz-app-instance
+    app.kubernetes.io/name: maximo-hail-pz-app
+  name: maximo-hail-pz-app
 spec:
   ports:
     - name: http
@@ -13,7 +13,7 @@ spec:
       protocol: TCP
       targetPort: 8501
   selector:
-    app.kubernetes.io/instance: maximo-hail-app-instance
-    app.kubernetes.io/name: maximo-hail-app
+    app.kubernetes.io/instance: maximo-hail-pz-app-instance
+    app.kubernetes.io/name: maximo-hail-pz-app
   sessionAffinity: None
   type: ClusterIP

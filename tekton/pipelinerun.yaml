@@ -1,13 +1,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: maximo-hail-app-pz-pipeline-run-
+  generateName: maximo-hail-pz-app-pipeline-run-
 spec:
   params:
     - name: source-repo
       value: https://github.com/poonamzham/maximo-hail
     - name: app-name
-      value: maximo-hail-app
+      value: maximo-hail-pz-app
     - name: image-repo
       value: quay.io/poonamzham0/maximo_demo
   serviceAccountName: build-bot

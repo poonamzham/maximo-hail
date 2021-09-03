@@ -13,6 +13,7 @@ spec:
     - name: source-repo
       description: Source git repository
     - name: commit
+
       description: The precise commit SHA used for this task
   workspaces:
     - name: source
