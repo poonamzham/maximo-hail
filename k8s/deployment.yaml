@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.openshift.io/vcs-ref: f7580aa1eb6f7176705176e201ecff4de93edafb
+    app.openshift.io/vcs-ref: 0ab9ffbd5c5cacbf66824a8e4724116b65a17424
     app.openshift.io/vcs-uri: https://github.com/poonamzham/maximo-hail
   labels:
     app: maximo-hail-pz-app
